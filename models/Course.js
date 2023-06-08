@@ -21,8 +21,7 @@ const CourseSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            video: {
-                avatar: {
+            video: {  
                     public_id: {
                         type: String,
                         required: true,
@@ -31,7 +30,6 @@ const CourseSchema = new mongoose.Schema({
                         type: String,
                         required: true
                     }
-                }
             }
         }
     ],

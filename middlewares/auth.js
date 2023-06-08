@@ -16,3 +16,19 @@ export const isAuthenticated = catchAsyncError(async (request, response, next) =
 
 })
 
+
+
+export const authorizeAdmin = catchAsyncError(async (request, response, next) => {
+    if (!request.cookies) return next(new ErrorHandler("Please login first", 401));
+    const { token } = request.cookies;
+    if (!token) {
+        return next(new ErrorHandler("Please login first", 401));
+    }
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+    const user = await userSchema.findById(decoded._id);
+    if (user.role !== 'admin') {
+        return next(new ErrorHandler("Only admins can access this functionality", 401));
+    }
+    next();
+})
