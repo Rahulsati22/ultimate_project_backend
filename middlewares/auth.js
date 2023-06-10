@@ -32,3 +32,11 @@ export const authorizeAdmin = catchAsyncError(async (request, response, next) =>
     }
     next();
 })
+
+
+export const authorizeSubscribers = catchAsyncError(async (request, response, next)=>{
+    if (request.user.subscription.status !== 'active' && request.user.role !== 'admin'){
+        return next(new ErrorHandler("Only subscriber can access video lectures", 404))
+    }
+    next();
+})

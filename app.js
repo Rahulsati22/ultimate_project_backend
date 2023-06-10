@@ -8,6 +8,7 @@ import { errorMiddleware } from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary'
 import Razorpay from 'razorpay';
+import otherRouter from './routes/otherRoutes.js';
 const app = express();
 dotenv.config();
 connectDB();
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use('/api/v1', router);
 app.use('/api/v1', userRouter);
 app.use('/api/v1', Router);
+app.use('/api/v1', otherRouter);
 app.listen(process.env.PORT, () => {
     console.log('hello world')
     console.log('successfully running on port', process.env.PORT)

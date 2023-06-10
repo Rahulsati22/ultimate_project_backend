@@ -89,6 +89,8 @@ export const cancelSubscription = catchAsyncError(async (request, response, next
         })
     }
     else {
+        user.subscription.id = undefined
+        user.subscription.status = undefined
         return response.status(200).json({
             success: true,
             message: "Subscription cancelled but payment will not refund as the subscription is cancelled after 7 days"
