@@ -3,15 +3,25 @@ import ErrorHandler from "../utils/errorHandler.js";
 import { userSchema } from "../models/User.js";
 import { sendToken } from "../utils/sendToken.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import cloudinary from 'cloudinary'
 import crypto from 'crypto'
 import { courseSchema } from "../models/Course.js";
+import getDataUri from "../utils/dataUri.js";
 export const signUp = catchAsyncError(async (request, response, next) => {
     const { name, email, password } = request.body;
-    // const file = request.file;
 
-    if (!email || !password || !name) {
+    const file = request.file;
+
+    if (!email || !password || !name || !file) {
         return next(new ErrorHandler("Please enter all the fields", 400));
     }
+
+    const fileUri = getDataUri(file);
+
+
+    const cloud = await cloudinary.v2.uploader.upload(fileUri.content);
+
+
     let user = await userSchema.findOne({ email: email });
     if (user) return next(new ErrorHandler("User already existes", 409));
 
@@ -20,7 +30,7 @@ export const signUp = catchAsyncError(async (request, response, next) => {
         name,
         email, password,
         avatar: {
-            public_id: "temp_id", url: "temp_url"
+            public_id: cloud.public_id, url: cloud.secure_url
         },
 
     })
@@ -113,6 +123,14 @@ export const updateProfile = catchAsyncError(async (request, response, next) => 
 })
 
 export const updateProfilePicture = catchAsyncError(async (request, response, next) => {
+    const file = request.file;
+    const fileUri = getDataUri(file);
+    const cloud = await cloudinary.v2.uploader.upload(fileUri.content);
+    const user = await userSchema.findById(request.user._id);
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    user.avatar.public_id = cloud.public_id;
+    user.avatar.url = cloud.secure_url;
+    await user.save();
     return response.status(200).json({
         success: true,
         message: "Profile picture updated successfully"
@@ -239,5 +257,69 @@ export const removeFromPlaylist = catchAsyncError(async (request, response, next
     return response.status(200).json({
         success: true,
         message: "Course removed from playlist"
+    })
+})
+
+
+export const getAllUsers = catchAsyncError(async (request, response, next) => {
+    const users = await userSchema.find();
+    return response.status(200).json({
+        success: true,
+        users
+    })
+})
+
+export const getUserProfile = catchAsyncError(async (request, response, next) => {
+    const { id } = request.params.id;
+    const user = await userSchema.findById(id);
+    if (!user) {
+        return next(new ErrorHandler("User doesn't exist", 404))
+    }
+    return response.status(200).json({
+        success: true,
+        user
+    })
+})
+
+
+export const updateUserRole = catchAsyncError(async (request, response, next) => {
+    const { id } = request.params;
+    const user = await userSchema.findById(id);
+    if (!user) return next(new ErrorHandler("User doesn't exist", 404));
+
+    user.role = user.role === "admin" ? "user" : "admin";
+    await user.save();
+    return response.status(200).json({
+        success: true,
+        message: "Role updated successfully"
+    })
+})
+
+export const deleteUser = catchAsyncError(async (request, response, next) => {
+    const { id } = request.params;
+    const user = await userSchema.findById(id);
+    if (!user) return next(new ErrorHandler("User doesn't exist", 404));
+
+    if (user.avatar)
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+    await userSchema.findByIdAndDelete(user._id);
+
+    return response.status(200).json({
+        success: true,
+        message: "User deleted successfully"
+    })
+})
+
+export const deleteMyProfile = catchAsyncError(async (request, response, next) => {
+    const id = request.user._id;
+    const user = await userSchema.findById(id);
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    await userSchema.findByIdAndDelete(user._id);
+    return response.status(200).cookie('token', null, {
+        expires: new Date(Date.now())
+    }).json({
+        success: true,
+        message: "User deleted successfully"
     })
 })
