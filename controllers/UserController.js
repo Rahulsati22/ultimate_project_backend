@@ -332,8 +332,14 @@ export const deleteMyProfile = catchAsyncError(async (request, response, next) =
 userSchema.watch().on("change", async () => {
     const Stats = await statsSchema.find({}).sort({ createdAt: "desc" }).limit(1);
     if (Stats.length <= 0) return;
-    const subscriptions = userSchema.find({ "subscription.status": 'active' });
-    Stats[0].subscriptions = subscriptions.length;
+    const subscriptions = await userSchema.find({});
+    let ans = 0;
+    for (let i = 0; i < subscriptions.length; i++){
+        if (subscriptions[i].subscription.status === 'active'){
+            ans++;
+        }
+    }
+    Stats[0].subscriptions = ans;
     Stats[0].users = await userSchema.countDocuments();
     Stats[0].createdAt = new Date(Date.now());
     await Stats[0].save();

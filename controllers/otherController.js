@@ -2,6 +2,7 @@ import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { statsSchema } from "../models/Stats.js";
+import {userSchema} from '../models/User.js'
 export const contactUs = catchAsyncError(async (request, response, next) => {
 
     const { name, email, message } = request.body;
@@ -76,6 +77,8 @@ export const getDashboardStats = catchAsyncError(async (request, response, next)
         subscriptionsProfit = true;
     }
 
+    const user2Count = await userSchema.countDocuments();
+
 
     return response.status(200).json({
         success: true,
@@ -88,6 +91,7 @@ export const getDashboardStats = catchAsyncError(async (request, response, next)
         subscriptionsPercentage,
         viewsProfit,
         subscriptionsProfit,
-        usersProfit
+        usersProfit,
+        user2Count
     })
 })
