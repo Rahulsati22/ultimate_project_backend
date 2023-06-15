@@ -4,6 +4,7 @@ import path from 'path'
 // here file is an object which contains fieldname, originalname, encoding, mimetype, buffer
 const getDataUri = (file) => {
     // new instance of DataUriParser is created helps to create data uri from file
+    console.log(file, "I am file")
     const parser = new DataURIParser();
 
     // it will find the type of file like jpg in this case and then converting it to string for consistency

@@ -60,6 +60,7 @@ export const login = catchAsyncError(async (request, response, next) => {
 export const logout = catchAsyncError(async (request, response, next) => {
     return response.status(200).cookie('token', null, {
         expires: new Date(Date.now()),
+        httpOnly: true,
     }).json({
         success: true,
         message: "Logged Out Successfully"
@@ -69,6 +70,7 @@ export const logout = catchAsyncError(async (request, response, next) => {
 
 export const getMyProfile = catchAsyncError(async (request, response, next) => {
     const user = await userSchema.findById(request.user._id);
+    console.log(user);
     if (!user) {
         return next(new ErrorHandler("User doesn't exits", 401));
     }
@@ -91,8 +93,8 @@ export const changePassword = catchAsyncError(async (request, response, next) =>
         return next(new ErrorHandler("Enter all the fields", 400));
     }
 
-    const isCorrect = user.comparePassword(oldPassword);
-
+    const isCorrect = await user.comparePassword(oldPassword);
+    console.log(isCorrect)
     if (!isCorrect) {
         return next(new ErrorHandler("Old password is wrong", 400));
     }
@@ -123,7 +125,9 @@ export const updateProfile = catchAsyncError(async (request, response, next) => 
 })
 
 export const updateProfilePicture = catchAsyncError(async (request, response, next) => {
+    console.log("I am inside update profile picture")
     const file = request.file;
+    console.log(file)
     const fileUri = getDataUri(file);
     const cloud = await cloudinary.v2.uploader.upload(fileUri.content);
     const user = await userSchema.findById(request.user._id);

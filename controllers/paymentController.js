@@ -17,7 +17,7 @@ export const buySubscription = catchAsyncError(async function (request, response
         total_count: 12
     }).then(async (elem) => {
         user.subscription.id = elem.id,
-            user.subscription.status = elem.status
+        user.subscription.status = elem.status
         await user.save()
         return response.status(201).json({
             success: true,
@@ -52,7 +52,8 @@ export const paymentVerification = catchAsyncError(async (request, response, nex
     await user.save();
 
     return response.redirect(`${process.env.FRONTEND_URL}/paymentsuccess?reference=${razorpay_payment_id}`)
-
+ 
+    
 })
 
 
@@ -69,7 +70,7 @@ export const cancelSubscription = catchAsyncError(async (request, response, next
     const subscriptionId = user.subscription.id;
     instance.subscriptions.cancel(subscriptionId)
     const payment = await paymentSchema.findOne({ razorpay_subscription_id: subscriptionId })
-    const gap = Date.now() - payment.createdAt();
+    const gap = Date.now() - payment.createdAt;
     const refundTime = process.env.REFUND_DAYS * 24 * 60 * 60 * 1000;
 
     if (gap < refundTime) {
@@ -77,6 +78,7 @@ export const cancelSubscription = catchAsyncError(async (request, response, next
             await paymentSchema.findByIdAndDelete(payment._id);
             user.subscription.id = undefined
             user.subscription.status = undefined
+            await user.save();
             return response.status(200).json({
                 success: true,
                 message: "Payment cancelled, You will receive full refund within 7 days"
@@ -91,6 +93,7 @@ export const cancelSubscription = catchAsyncError(async (request, response, next
     else {
         user.subscription.id = undefined
         user.subscription.status = undefined
+        await user.save();
         return response.status(200).json({
             success: true,
             message: "Subscription cancelled but payment will not refund as the subscription is cancelled after 7 days"

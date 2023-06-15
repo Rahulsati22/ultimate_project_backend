@@ -7,11 +7,15 @@ import cloudinary from 'cloudinary'
 
 // this function is used to fetch all the courses
 export const getAllCourses = catchAsyncError(async (request, response, next) => {
-    const courses = await courseSchema.find().select('-lectures');
+    const { keyword, category } = request.query;
+    console.log(keyword, category)
+    const courses = await courseSchema.find({ category: { $regex: category, $options: "i" }, description: { $regex: keyword, $options: "i" }, title: { $regex: keyword, $options: "i" } }).select('-lectures');
+    console.log(courses)
     response.status(200).json({
         success: true,
         courses
     })
+
 })
 
 

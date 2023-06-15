@@ -9,15 +9,24 @@ import cookieParser from 'cookie-parser';
 import cloudinary from 'cloudinary'
 import Razorpay from 'razorpay';
 import otherRouter from './routes/otherRoutes.js';
+import NodeCron from 'node-cron'
+import { statsSchema } from './models/Stats.js';
+import cors from 'cors'
 const app = express();
+const corsOptions ={
+    origin:'http://localhost:3000', 
+    credentials:true,             
+    optionSuccessStatus:200
+}
+app.use(cors(corsOptions));
 dotenv.config();
 connectDB();
 app.use(express.urlencoded({
     extended: true
 }));
 export const instance = new Razorpay({
-    key_id:process.env.RAZORPAY_KEY,
-    key_secret:process.env.RAZORPAY_SECRET
+    key_id: process.env.RAZORPAY_KEY,
+    key_secret: process.env.RAZORPAY_SECRET
 })
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -30,6 +39,15 @@ app.use('/api/v1', router);
 app.use('/api/v1', userRouter);
 app.use('/api/v1', Router);
 app.use('/api/v1', otherRouter);
+
+NodeCron.schedule("0 0 0 1 * *", async () => {
+    try {
+        await statsSchema.create({});
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 app.listen(process.env.PORT, () => {
     console.log('hello world')
     console.log('successfully running on port', process.env.PORT)

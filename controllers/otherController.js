@@ -1,7 +1,7 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/sendEmail.js";
-
+import { statsSchema } from "../models/Stats.js";
 export const contactUs = catchAsyncError(async (request, response, next) => {
 
     const { name, email, message } = request.body;
@@ -40,6 +40,36 @@ export const courseRequest = catchAsyncError(async (request, response, next) => 
 
 
 export const getDashboardStats = catchAsyncError(async (request, response, next) => {
+    const stats = await statsSchema.find().sort({createdAt:"desc"}).limit(12);
 
+    const statsData = [];
+
+    const requiredSize = 12 - stats.length;
+
+    for (let i = 0; i < stats.length; i++){
+        statsData.unshift(stats[i]);
+    }
+
+    for (let i = 0; i < requiredSize; i++){
+        statsData.unshift({
+            users:0,
+            subscriptions:0,
+            views : 0
+        })
+    }
+
+    const usersCount = statsData[11].users;
+    const viewsCount = statsData[11].views;
+    const subscriptionsCount = statsData[11].subscriptions
+
+    
+
+    return response.status(200).json({
+        success : true,
+        stats : statsData,
+        usersCount,
+        viewsCount,
+        subscriptionsCount
+    })
 
 })

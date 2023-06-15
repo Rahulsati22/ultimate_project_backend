@@ -12,7 +12,7 @@ router.route('/createcourse').post(isAuthenticated, authorizeAdmin, singleUpload
 
 
 // add lecture
-router.route('/course/:id').get(isAuthenticated, authorizeSubscribers, getCourseLectures).post(isAuthenticated, authorizeAdmin, singleUpload, addToLectures).delete(isAuthenticated, authorizeAdmin, deleteCourse);
+router.route('/course/:id').get(isAuthenticated, authorizeSubscribers, getCourseLectures).put(isAuthenticated, authorizeAdmin, singleUpload, addToLectures).delete(isAuthenticated, authorizeAdmin, deleteCourse);
 
 // Add lecture, Delete course, getCourseDetails
 
