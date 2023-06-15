@@ -48,6 +48,8 @@ NodeCron.schedule("0 0 0 1 * *", async () => {
     }
 })
 
+ 
+
 app.listen(process.env.PORT, () => {
     console.log('hello world')
     console.log('successfully running on port', process.env.PORT)

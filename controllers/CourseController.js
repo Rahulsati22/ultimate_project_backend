@@ -140,13 +140,14 @@ export const deleteLecture = catchAsyncError(async (request, response, next) => 
 
 courseSchema.watch().on("change", async () => {
     const Stats = await statsSchema.find({}).sort({ createdAt: "desc" }).limit(1);
+    if (Stats.length <= 0) return;
     const courses = await courseSchema.find({});
-    const totalViews = 0;
+    let totalViews = 0;
     for (let i = 0; i < courses.length; i++) {
         const element = courses[i];
         totalViews += courses[i].views;
     }
     Stats[0].views = totalViews;
-    Stats[0].createdAt = new Data(Date.now());
+    Stats[0].createdAt = new Date(Date.now());
     await Stats[0].save();
 })
