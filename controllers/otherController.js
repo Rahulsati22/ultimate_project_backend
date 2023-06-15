@@ -40,36 +40,54 @@ export const courseRequest = catchAsyncError(async (request, response, next) => 
 
 
 export const getDashboardStats = catchAsyncError(async (request, response, next) => {
-    const stats = await statsSchema.find().sort({createdAt:"desc"}).limit(12);
-
+    const stats = await statsSchema.find({}).sort({ createdAt: "desc" }).limit(12);
     const statsData = [];
-
-    const requiredSize = 12 - stats.length;
-
-    for (let i = 0; i < stats.length; i++){
+    for (let i = 0; i < stats.length; i++) {
         statsData.unshift(stats[i]);
     }
-
-    for (let i = 0; i < requiredSize; i++){
+    const requiredSize = 12 - stats.length;
+    for (let i = 0; i < requiredSize; i++) {
         statsData.unshift({
-            users:0,
-            subscriptions:0,
-            views : 0
-        })
+            users: 0,
+            subscriptions: 0,
+            views: 0
+        });
+    }
+    const usersCount = statsData[11].users;
+    const subscriptionsCount = statsData[11].subscriptions;
+    const viewsCount = statsData[11].views;
+    let usersProfit = false, subscriptionsProfit = false, viewsProfit = false;
+    let usersPercentage = 0, subscriptionsPercentage = 0, viewsPercentage = 0;
+
+    if (statsData[10].users === 0) usersPercentage = usersCount;
+    else usersPercentage = (statsData[11].users - statsData[10].users) / statsData[10].users * 100;
+    if (statsData[10].views === 0) viewsPercentage = viewsCount;
+    else viewsPercentage = (statsData[11].views - statsData[10].views) / statsData[10].views * 100;
+    if (statsData[10].subscriptions === 0) subscriptionsPercentage = subscriptionsCount;
+    else subscriptionsPercentage = (statsData[11].subscriptions - statsData[10].subscriptions) / statsData[10].subscriptions * 100;
+
+    if (usersPercentage >= 0) {
+        usersProfit = true;
+    }
+    if (viewsPercentage >= 0) {
+        viewsProfit = true;
+    }
+    if (subscriptionsPercentage >= 0) {
+        subscriptionsProfit = true;
     }
 
-    const usersCount = statsData[11].users;
-    const viewsCount = statsData[11].views;
-    const subscriptionsCount = statsData[11].subscriptions
-
-    
 
     return response.status(200).json({
-        success : true,
-        stats : statsData,
+        success: true,
+        stats: statsData,
         usersCount,
+        subscriptionsCount,
         viewsCount,
-        subscriptionsCount
+        usersPercentage,
+        viewsPercentage,
+        subscriptionsPercentage,
+        viewsProfit,
+        subscriptionsProfit,
+        usersProfit
     })
-
 })

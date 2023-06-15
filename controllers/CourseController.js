@@ -4,6 +4,7 @@ import { courseSchema } from "../models/Course.js"
 import getDataUri from "../utils/dataUri.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import cloudinary from 'cloudinary'
+import { statsSchema } from "../models/Stats.js";
 
 // this function is used to fetch all the courses
 export const getAllCourses = catchAsyncError(async (request, response, next) => {
@@ -134,4 +135,18 @@ export const deleteLecture = catchAsyncError(async (request, response, next) => 
         success: true,
         message: "Lecture deleted successfully"
     })
+})
+
+
+courseSchema.watch().on("change", async () => {
+    const Stats = await statsSchema.find({}).sort({ createdAt: "desc" }).limit(1);
+    const courses = await courseSchema.find({});
+    const totalViews = 0;
+    for (let i = 0; i < courses.length; i++) {
+        const element = courses[i];
+        totalViews += courses[i].views;
+    }
+    Stats[0].views = totalViews;
+    Stats[0].createdAt = new Data(Date.now());
+    await Stats[0].save();
 })
