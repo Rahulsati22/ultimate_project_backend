@@ -14,7 +14,7 @@ import { statsSchema } from './models/Stats.js';
 import cors from 'cors'
 const app = express();
 const corsOptions = {
-    origin: 'https://ultimate-project-backend.vercel.app',
+    origin: 'https://coursebundler-sigma.vercel.app',
     credentials: true,
     optionSuccessStatus: 200
 }
