@@ -14,7 +14,7 @@ import { statsSchema } from './models/Stats.js';
 import cors from 'cors'
 const app = express();
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'https://ultimate-project-backend.vercel.app',
     credentials: true,
     optionSuccessStatus: 200
 }
