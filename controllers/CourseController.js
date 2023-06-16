@@ -10,7 +10,7 @@ import { statsSchema } from "../models/Stats.js";
 export const getAllCourses = catchAsyncError(async (request, response, next) => {
     const { keyword, category } = request.query;
     console.log(keyword, category)
-    const courses = await courseSchema.find({ category: { $regex: category, $options: "i" }, description: { $regex: keyword, $options: "i" }, title: { $regex: keyword, $options: "i" } }).select('-lectures');
+    const courses = await courseSchema.find({ category: { $regex: category, $options: "i" }}, {description: { $regex: keyword, $options: "i" }}, {title: { $regex: keyword, $options: "i" } }).select('-lectures');
     console.log(courses)
     response.status(200).json({
         success: true,
