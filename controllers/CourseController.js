@@ -8,7 +8,7 @@ import { statsSchema } from "../models/Stats.js";
 
 // this function is used to fetch all the courses
 export const getAllCourses = catchAsyncError(async (request, response, next) => {
-    const { keyword, category } = request.query;
+    let { keyword, category } = request.query;
     if (!keyword){
         keyword = "";
     }
