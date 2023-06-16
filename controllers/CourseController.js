@@ -9,7 +9,12 @@ import { statsSchema } from "../models/Stats.js";
 // this function is used to fetch all the courses
 export const getAllCourses = catchAsyncError(async (request, response, next) => {
     const { keyword, category } = request.query;
-    
+    if (!keyword){
+        keyword = "";
+    }
+    if (!category){
+        category = "";
+    }
     const courses = await courseSchema.find({category : {$regex : category, options : 'i'}}, {title : {$regex : keyword, options:'i'}}, {description : {$regex : keyword, options:'i'}}).select('-lectures');
     console.log(courses)
     response.status(200).json({
